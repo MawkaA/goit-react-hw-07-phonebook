@@ -1,4 +1,4 @@
-import { useDeleteContactMutation } from '../../../redux/contacts';
+import { useDeleteContactMutation } from '../../../shared/services/contacts';
 import Notiflix from 'notiflix';
 import { memo } from 'react';
 

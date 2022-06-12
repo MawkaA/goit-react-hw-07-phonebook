@@ -1,6 +1,6 @@
 import React,{useRef, useState } from 'react';
 // import LoadingIndicator from 'react-loading-indicator';
-import Loader from '../shared/Loader';
+import Loader from './Loader/Loader';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Notiflix from 'notiflix';
@@ -8,11 +8,11 @@ import Filter from './Filter/Filter';
 import'./App.css';
 
 
-import {getFilteredContacts} from '../shared/get-contacts';
+import {getFilteredContacts} from '../shared/services/get-contacts';
 import {
   useGetContactsQuery,
   useCreateContactMutation,
-} from '../redux/contacts';
+} from '../shared/services/contacts';
 
 export default function App() {
   const [filter, setFilter] = useState('');
