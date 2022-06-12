@@ -1,38 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import css from './ContactList.module.css';
+import Contact from './Contact/Contact';
 
-
-const ContactList = ({ contacts, filterText, deleteContact }) => {
-  const filteredContacts = contacts.filter(({ name }) =>
-    name.toLowerCase().includes(filterText.toLowerCase())
-  );
+const ContactList = ({ contacts }) => {
+  const elements = contacts.map(({ name, phone, id }) => (
+    <Contact name={name} phone={phone} id={id} key={id} />
+  ));
 
   return (
-    <ul className={css.contactList }>
-      {filteredContacts.map(({ id, name, number }) => (
-        <li key={id} className={css.container}>
-          <p className={css.name}>
-            {name}: {number}
-          </p>
-
-          <button
-            className={css.button}
-            type="button"
-            onClick={() => deleteContact(id)}
-           >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+    <>
+     {contacts.length === 0 
+     ? (<p className={css.message}>No matches found</p>) 
+     :(<ul className={css.contactList }>{elements}</ul>)}
+    
+    </>
+    
   );
 };
 
+ContactList.defaultProps = {
+  contacts: [],
+};
+
 ContactList.propTypes = {
-  contacts: PropTypes.array.isRequired,
-  filterText: PropTypes.string.isRequired,
-  deleteContact: PropTypes.func.isRequired,
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      phone: PropTypes.string.isRequired,
+      id: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 export default ContactList;

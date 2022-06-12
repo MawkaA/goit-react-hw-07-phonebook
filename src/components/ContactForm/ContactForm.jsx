@@ -1,44 +1,35 @@
 // import { nanoid } from 'nanoid';
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import css from './ContactForm.module.css';
 import PropTypes from "prop-types";
 
 
-export default function ContactForm ({ onSubmit }) {
-    const [name, setName] = useState("");
-    const [number, setNumber] = useState("");
-  
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      switch (name) {
-        case "name":
-          setName(value);
-          break;
-        case "number":
-          setNumber(value);
-          break;
-  
-        default:
-          break;
-      }
-    };
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      onSubmit({ name, number });
-      reset();
-    };
-    const reset = () => {
-      setName("");
-      setNumber("");
-    };
+const ContactForm =(({ onSubmit, isLoading })=> {
+  const [state, setState] = useState({
+    name: '',
+    phone: '',
+  });
+  const handleSubmit = e => {
+    e.preventDefault();
 
+    onSubmit(state);
+
+    setState({
+      name: '',
+      phone: '',
+    });
+  };
+  const handleChange = e => {
+    const { name, value } = e.target;
+
+    setState(prevState => ({ ...prevState, [name]: value }));
+  };
         return(
-            <form className={css.form} onSubmit={handleSubmit}>
-            <label className={css.label}> Name
+            <form className={css.form} action="" onSubmit={handleSubmit}>
+            <label className={css.label} htmlFor=""> Name
             <input 
                    className={css.input}
-                   value={name}
+                   value={state.name}
                    type="text"
                    name="name"
                    onChange={handleChange}
@@ -51,8 +42,8 @@ export default function ContactForm ({ onSubmit }) {
             <label className={css.label}>Number
             <input className={css.input}
                     type="text"
-                    name='number'
-                    value={number}
+                    name='phone'
+                    value={state.phone}
                     onChange={handleChange}
                    placeholder="Enter phone number"
                    pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -64,8 +55,10 @@ export default function ContactForm ({ onSubmit }) {
         </form>
     )
           
-} 
+})
 ContactForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool.isRequired,
   };
+  export default memo(ContactForm);
   

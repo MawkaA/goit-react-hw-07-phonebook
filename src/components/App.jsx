@@ -1,57 +1,60 @@
-import React from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import React,{useRef, useState } from 'react';
+// import LoadingIndicator from 'react-loading-indicator';
+import Loader from '../shared/Loader';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Notiflix from 'notiflix';
 import Filter from './Filter/Filter';
 import'./App.css';
-import { getContacts, getFilter } from '../redux/contacts-selectors';
-import { actions } from '../redux/contacts-slice';
+
+
 import {getFilteredContacts} from '../shared/get-contacts';
+import {
+  useGetContactsQuery,
+  useCreateContactMutation,
+} from '../redux/contacts';
 
 export default function App() {
-  const contacts = useSelector(getContacts, shallowEqual);
-  const filter = useSelector(getFilter, shallowEqual);
+  const [filter, setFilter] = useState('');
+  const isPrevSuccess = useRef(false);
 
-  const dispatch = useDispatch();
+  const { data, error, isLoading } = useGetContactsQuery();
 
-  const addContact =contact=>{
-    const action = actions.add(contact);
-    const isDuplicated = contacts.find(({ name }) => name === contact.name);
+  const [createContact, { isLoading: isFetching, isSuccess }] =
+    useCreateContactMutation();
 
-    if (isDuplicated) {
-      Notiflix.Report.warning('Oops', 'You already have this contact');
+  const addContact = ({ name, phone }) => {
+    const duplicate = data.find(item => item.name === name);
+
+    if (duplicate) {
+      Notiflix.Notify.info(`${name} already exists in your contacts!`);
       return;
     }
 
-    dispatch(action);
+    createContact({ name, phone });
   };
-  
-  const changeFilter=({ target }) => {
-    const action = actions.setFilter(target.value);
+  const filteredContacts = getFilteredContacts(filter, data);
 
-    dispatch(action);
+  const showContacts = data && !isLoading & !error;
+  const showToast = () => {
+    isPrevSuccess.current = true;
+    return Notiflix.Notify.success('Contact added to your phonebook!');
   };
-   
-  const deleteContact=id => {
-    const action = actions.delete(id);
-
-    dispatch(action);
-  };
-  
-  const filteredContacts=getFilteredContacts(filter, contacts);
-
 return(
         <>
           <h1 className="title">Phonebook</h1>
-          <ContactForm className="contact" onSubmit={addContact} />
+          <ContactForm 
+             className="contact" 
+             onSubmit={addContact}
+             data={data}
+             isLoading={isFetching}
+             isSuccess={isSuccess} />
           <h2 className="title">Contacts</h2>
-          <Filter filterText={filter} changeFilter={changeFilter}/>
-          <ContactList 
-            contacts={filteredContacts}
-            filterText={filter}
-            deleteContact = { deleteContact }/> 
-        </>
+          <Filter handleChange={setFilter}/>
+          {isSuccess && !isPrevSuccess.current && showToast()}
+          {isLoading && Loader}
+          {showContacts && <ContactList contacts={filteredContacts} />}
+          </>
     );   
   
 };
